@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 0, 0);
+        public override Version Version => new Version(1, 0, 0, 1);
 
         public override string Name
         {

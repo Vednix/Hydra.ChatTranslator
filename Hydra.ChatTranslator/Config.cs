@@ -39,10 +39,9 @@ namespace Hydra.ChatTranslator
         {
             Read();
         }
-        public static bool Read(bool FirstLoad = false)
+        public static bool Read()
         {
             bool Return = false;
-            Exception ex;
             try
             {
                 if (!Directory.Exists(Base.SavePath))
@@ -62,15 +61,7 @@ namespace Hydra.ChatTranslator
             }
             catch (Exception e)
             {
-                ex = e;
                 Plugin.Config = new Config();
-
-                if (FirstLoad)
-                {
-                    Logger.WriteLine($"[Hydra.ChatTranslator] There was an critical error loading the configuration file, using default configuration. => {e}", ConsoleColor.DarkRed);
-                    Console.ReadKey();
-                    Environment.Exit(-1);
-                }
                 Logger.doLog($"[Hydra.ChatTranslator] There was an error loading the configuration file, using default configuration. => {e.Message}", DebugLevel.Critical);
                 Return = false;
             }
