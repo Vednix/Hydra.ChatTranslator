@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 1, 0);
+        public override Version Version => new Version(1, 0, 1, 1);
 
         public override string Name
         {
@@ -48,9 +48,9 @@ namespace Hydra.ChatTranslator
         private static void TranslatorToggle(CommandArgs args)
         {
             DisableTr[args.Player.Index] = !DisableTr[args.Player.Index];
-            TSPlayerB.SendSuccessMessage(args.Player.Index, DefaultMessage: string.Format("Now you {0} receive messages translated from other languages", DisableTr[args.Player.Index] ? "[c/98C807:will]" : "[c/ffa500:will not]"),
-                                                            PortugueseMessage: string.Format("Agora você {0} receber mensagens traduzidas de outros idiomas", DisableTr[args.Player.Index] ? "[c/98C807:irá]" : "[c/ffa500:não irá]"),
-                                                            SpanishMessage: string.Format("Ahora {0} mensajes traducidos de otros idiomas.", DisableTr[args.Player.Index] ? "[c/98C807:recibirá]" : "[c/ffa500:no recibirá]"));
+            TSPlayerB.SendSuccessMessage(args.Player.Index, DefaultMessage: string.Format("Now you {0} receive messages translated from other languages", !DisableTr[args.Player.Index] ? "[c/98C807:will]" : "[c/ffa500:will not]"),
+                                                            PortugueseMessage: string.Format("Agora você {0} receber mensagens traduzidas de outros idiomas", !DisableTr[args.Player.Index] ? "[c/98C807:irá]" : "[c/ffa500:não irá]"),
+                                                            SpanishMessage: string.Format("Ahora {0} mensajes traducidos de otros idiomas.", !DisableTr[args.Player.Index] ? "[c/98C807:recibirá]" : "[c/ffa500:no recibirá]"));
         }
         public static Config PConfig;
         internal static async void OnServerChat(ServerChatEventArgs args)
