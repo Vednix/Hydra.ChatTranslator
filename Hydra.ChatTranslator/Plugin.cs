@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 0, 1);
+        public override Version Version => new Version(1, 0, 1, 0);
 
         public override string Name
         {
@@ -52,7 +52,7 @@ namespace Hydra.ChatTranslator
                                                             PortugueseMessage: string.Format("Agora você {0} receber mensagens traduzidas de outros idiomas", DisableTr[args.Player.Index] ? "[c/98C807:irá]" : "[c/ffa500:não irá]"),
                                                             SpanishMessage: string.Format("Ahora {0} mensajes traducidos de otros idiomas.", DisableTr[args.Player.Index] ? "[c/98C807:recibirá]" : "[c/ffa500:no recibirá]"));
         }
-        public static Config Config;
+        public static Config PConfig;
         internal static async void OnServerChat(ServerChatEventArgs args)
         {
             if (args.Handled)
@@ -205,24 +205,24 @@ namespace Hydra.ChatTranslator
             args.Handled = true;
             string OriginalMessage = $"{PreNSuf}{Message}";
             TShock.Log.Info(string.Format("Broadcast: {0}", OriginalMessage));
-            string text = String.Format(Config.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, args.Text);
+            string text = String.Format(PConfig.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, args.Text);
 
             bool[] PlayerLangOn = new bool[3]; //0 = EN | 1 = PT | 2 = ES
             string[] TrMessage = new string[3]; //0 = EN | 1 = PT | 2 = ES
 
-            if (!Config.Enabled)
+            if (!PConfig.Enabled)
             {
                 Color c = new Color(r, g, b);
                 TShockB.AllSendMessage(OriginalMessage, c);
-                Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {OriginalMessage}", ConsoleColor.DarkGreen);
+                Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(OriginalMessage, @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
                 PlayerHooks.OnPlayerChat(tsplr, args.Text, ref text);
                 return;
             }
 
             TSPlayerB.SendMessage(tsplr.Index, OriginalMessage, r, g, b);
 
-            if (!Config.ConsoleChatTranslate)
-                Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {OriginalMessage}", ConsoleColor.DarkGreen);
+            if (!PConfig.ConsoleChatTranslate)
+                Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(OriginalMessage, @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
 
             foreach (var plr in TShockB.Players.Where(p => p != null && p.Active))
             {
@@ -246,8 +246,8 @@ namespace Hydra.ChatTranslator
             {
                 if (!string.IsNullOrWhiteSpace(Message))
                 {
-                    foreach (var Data in Config.GoogleReplaces)
-                        Message = System.Text.RegularExpressions.Regex.Replace(Message, $@"\b{Config.Data.From}\b", Config.Data.To);
+                    foreach (var Data in PConfig.WordsReplaces)
+                        Message = System.Text.RegularExpressions.Regex.Replace(Message, $@"\b{Data.From}\b", Data.To);
 
                     var translator = new GoogleTranslateFreeApi.GoogleTranslator();
 
@@ -276,7 +276,7 @@ namespace Hydra.ChatTranslator
                             TrMessage[i] = $"{PreNSuf}{result.MergedTranslation}{SuccessTag()}";
                         }
                     }
-                    if (Config.ConsoleChatTranslate)
+                    if (PConfig.ConsoleChatTranslate)
                         Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
                 }
                 else
@@ -287,7 +287,7 @@ namespace Hydra.ChatTranslator
                 for (int i = 0; i < PlayerLangOn.Count(); i++)
                     if (PlayerLangOn[i])
                         TrMessage[i] = $"{OriginalMessage}{ErrorTag()}";
-                if (Config.ConsoleChatTranslate)
+                if (PConfig.ConsoleChatTranslate)
                     Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkRed);
                 Logger.doLog($"[Hydra.ChatTranslator] {ex.Message}", Hydra.Config.DebugLevel.Error);
             }
@@ -297,7 +297,7 @@ namespace Hydra.ChatTranslator
                 if (DisableTr[fchplr.Index])
                     TSPlayerB.SendMessage(fchplr.Index, OriginalMessage, r, g, b);
                 else if (TSPlayerB.PlayerLanguage[tsplr.Index] == TSPlayerB.PlayerLanguage[fchplr.Index])
-                    TSPlayerB.SendMessage(fchplr.Index, OriginalMessage, r, g, b);
+                    TSPlayerB.SendMessage(fchplr.Index, TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]], r, g, b);
                 else if (TSPlayerB.PlayerLanguage[tsplr.Index] != TSPlayerB.PlayerLanguage[fchplr.Index])
                     TSPlayerB.SendMessage(fchplr.Index, TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]], r, g, b);
             });

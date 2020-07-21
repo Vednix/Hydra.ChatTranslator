@@ -1,0 +1,11 @@
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\Hydra.ChatTranslator.dll
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\Hydra.ChatTranslator.pdb
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\GoogleTranslateFreeApi.dll
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\Hydra.dll
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\System.Runtime.InteropServices.RuntimeInformation.dll
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\GoogleTranslateFreeApi.xml
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\bin\Release\Hydra.pdb
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Release\Hydra.ChatTranslator.csproj.CoreCompileInputs.cache
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Release\Hydra.ChatTranslator.csproj.CopyComplete
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Release\Hydra.ChatTranslator.dll
+C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Release\Hydra.ChatTranslator.pdb

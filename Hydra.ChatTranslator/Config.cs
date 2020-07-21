@@ -24,13 +24,16 @@ namespace Hydra.ChatTranslator
                 To = to;
             }
 
-            public static string From { get; set; }
-            public static string To { get; set; }
+            public string From { get; set; }
+            public string To { get; set; }
         }
         public bool Enabled = true;
         public string ChatFormat = "{1}{2}{3}: {4}";
         public bool ConsoleChatTranslate = true;
-        public List<Data> GoogleReplaces { get; set; } = new List<Data>();
+        public List<Data> WordsReplaces { get; set; } = new List<Data>
+        {
+            new Data{ From = "n", To = "não" }
+        };
         public static void OnReloadEvent(ReloadEventArgs args)
         {
             Read();
@@ -55,13 +58,13 @@ namespace Hydra.ChatTranslator
                 else
                     File.WriteAllText(filepath, JsonConvert.SerializeObject(config, Formatting.Indented));
 
-                Plugin.Config = config;
+                Plugin.PConfig = config;
 
                 Logger.doLog("[Hydra.ChatTranslator] Configuration has been loaded successfully!", DebugLevel.Info);
             }
             catch (Exception e)
             {
-                Plugin.Config = new Config();
+                Plugin.PConfig = new Config();
                 Logger.doLog($"[Hydra.ChatTranslator] There was an error loading the configuration file, using default configuration. => {e.Message}", DebugLevel.Critical);
                 Return = false;
             }
