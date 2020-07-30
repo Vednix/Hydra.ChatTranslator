@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 1, 3);
+        public override Version Version => new Version(1, 0, 1, 4);
 
         public override string Name
         {
@@ -41,7 +41,7 @@ namespace Hydra.ChatTranslator
             ServerApi.Hooks.GamePostInitialize.Register(this, Config.OnPluginInitialize);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             GeneralHooks.ReloadEvent += Config.OnReloadEvent;
-            TShockAPI.Commands.ChatCommands.Add(new Command(TranslatorToggle, "tradutor", "translator", "traductor", "google", "tr", "googletr", "trad")
+            TShockAPI.Commands.ChatCommands.Add(new Command(TranslatorToggle, "translator", "tradutor", "traductor", "google", "tr", "googletr", "trad")
             {
                 AllowServer = false
             });

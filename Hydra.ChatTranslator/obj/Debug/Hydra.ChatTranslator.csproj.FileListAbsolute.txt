@@ -9,4 +9,3 @@ C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Debug\
 C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Debug\Hydra.ChatTranslator.csproj.CopyComplete
 C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Debug\Hydra.ChatTranslator.dll
 C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Debug\Hydra.ChatTranslator.pdb
-C:\Users\fabio\source\repos\Hydra.ChatTranslator\Hydra.ChatTranslator\obj\Debug\Hydra.ChatTranslator.csprojAssemblyReference.cache
