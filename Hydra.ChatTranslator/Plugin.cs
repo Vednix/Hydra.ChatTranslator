@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 1, 1);
+        public override Version Version => new Version(1, 0, 1, 3);
 
         public override string Name
         {
@@ -39,6 +39,7 @@ namespace Hydra.ChatTranslator
         {
             ServerApi.Hooks.ServerChat.Register(this, OnServerChat);
             ServerApi.Hooks.GamePostInitialize.Register(this, Config.OnPluginInitialize);
+            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             GeneralHooks.ReloadEvent += Config.OnReloadEvent;
             TShockAPI.Commands.ChatCommands.Add(new Command(TranslatorToggle, "tradutor", "translator", "traductor", "google", "tr", "googletr", "trad")
             {
@@ -51,6 +52,10 @@ namespace Hydra.ChatTranslator
             TSPlayerB.SendSuccessMessage(args.Player.Index, DefaultMessage: string.Format("Now you {0} receive messages translated from other languages", !DisableTr[args.Player.Index] ? "[c/98C807:will]" : "[c/ffa500:will not]"),
                                                             PortugueseMessage: string.Format("Agora você {0} receber mensagens traduzidas de outros idiomas", !DisableTr[args.Player.Index] ? "[c/98C807:irá]" : "[c/ffa500:não irá]"),
                                                             SpanishMessage: string.Format("Ahora {0} mensajes traducidos de otros idiomas.", !DisableTr[args.Player.Index] ? "[c/98C807:recibirá]" : "[c/ffa500:no recibirá]"));
+        }
+        private static void OnLeave(LeaveEventArgs args)
+        {
+            DisableTr[args.Who] = false;
         }
         public static Config PConfig;
         internal static async void OnServerChat(ServerChatEventArgs args)
@@ -108,14 +113,14 @@ namespace Hydra.ChatTranslator
                                                                 PortugueseMessage: "O comando não pôde ser analisado.",
                                                                 SpanishMessage: "El comando no se pudo analizar.");
 
-                        Logger.doLogLang(DefaultMessage: $"Unable to parse command '{text}' from player '{tsplr.Name}'.", Hydra.Config.DebugLevel.Error, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage),
+                        Logger.doLogLang(DefaultMessage: $"Unable to parse command '{text}' from player '{tsplr.Name}'.", Hydra.Config.DebugLevel.Error, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage),
                                          PortugueseMessage: $"Não foi possível parsear o comando '{text}' executado pelo jogador '{tsplr.Name}'.",
                                          SpanishMessage: $"El comando no se pudo analizar '{text}' realizado por el jugador '{tsplr.Name}'.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.doLogLang(DefaultMessage: $"An exception occurred executing a command.", Hydra.Config.DebugLevel.Critical, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage),
+                    Logger.doLogLang(DefaultMessage: $"An exception occurred executing a command.", Hydra.Config.DebugLevel.Critical, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage),
                                      PortugueseMessage: $"Ocorreu uma exceção ao executar um comando.",
                                      SpanishMessage: $"Se produjo una excepción al ejecutar un comando.");
 
@@ -153,43 +158,43 @@ namespace Hydra.ChatTranslator
                     //string c = Convert.ToInt32(hexValue, 16).ToString();
                     args.Handled = true;
                 }
-                else
-                {
-                    Player ply = Main.player[args.Who];
-                    string name = ply.name;
-                    ply.name = String.Format(TShock.Config.ChatAboveHeadsFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix);
-                    //Update the player's name to format text nicely. This needs to be done because Terraria automatically formats messages against our will
-                    NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, NetworkText.FromLiteral(ply.name), args.Who, 0, 0, 0, 0);
+                //else
+                //{
+                //    Player ply = Main.player[args.Who];
+                //    string name = ply.name;
+                //    ply.name = String.Format(TShock.Config.ChatAboveHeadsFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix);
+                //    //Update the player's name to format text nicely. This needs to be done because Terraria automatically formats messages against our will
+                //    NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, NetworkText.FromLiteral(ply.name), args.Who, 0, 0, 0, 0);
 
-                    //Give that poor player their name back :'c
-                    ply.name = name;
-                    PlayerHooks.OnPlayerChat(tsplr, args.Text, ref text);
+                //    //Give that poor player their name back :'c
+                //    ply.name = name;
+                //    PlayerHooks.OnPlayerChat(tsplr, args.Text, ref text);
 
-                    NetMessage.SendData((int)PacketTypes.ChatText, -1, args.Who, text, args.Who, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
-                    NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, name, args.Who, 0, 0, 0, 0);
-                    //Downgrade to 1.3.0
-                    ////This netpacket is used to send chat text from the server to clients, in this case on behalf of a client
-                    //Terraria.Net.NetPacket packet = Terraria.GameContent.NetModules.NetTextModule.SerializeServerMessage(
-                    //    NetworkText.FromLiteral(text), new Color(tsplr.Group.R, tsplr.Group.G, tsplr.Group.B), (byte)args.Who
-                    //);
-                    ////Broadcast to everyone except the player who sent the message.
-                    ////This is so that we can send them the same nicely formatted message that everyone else gets
-                    //Terraria.Net.NetManager.Instance.Broadcast(packet, args.Who);
+                //    NetMessage.SendData((int)PacketTypes.ChatText, -1, args.Who, text, args.Who, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
+                //    NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, name, args.Who, 0, 0, 0, 0);
+                //    //Downgrade to 1.3.0
+                //    ////This netpacket is used to send chat text from the server to clients, in this case on behalf of a client
+                //    //Terraria.Net.NetPacket packet = Terraria.GameContent.NetModules.NetTextModule.SerializeServerMessage(
+                //    //    NetworkText.FromLiteral(text), new Color(tsplr.Group.R, tsplr.Group.G, tsplr.Group.B), (byte)args.Who
+                //    //);
+                //    ////Broadcast to everyone except the player who sent the message.
+                //    ////This is so that we can send them the same nicely formatted message that everyone else gets
+                //    //Terraria.Net.NetManager.Instance.Broadcast(packet, args.Who);
 
-                    //Reset their name
-                    //NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, NetworkText.FromLiteral(name), args.Who, 0, 0, 0, 0);
+                //    //Reset their name
+                //    //NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, NetworkText.FromLiteral(name), args.Who, 0, 0, 0, 0);
 
-                    string msg = String.Format("<{0}> {1}",
-                        String.Format(TShock.Config.ChatAboveHeadsFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix),
-                        text
-                    ); ;
+                //    string msg = String.Format("<{0}> {1}",
+                //        String.Format(TShock.Config.ChatAboveHeadsFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix),
+                //        text
+                //    ); ;
 
-                    //Send the original sender their nicely formatted message, and do all the loggy things
-                    tsplr.SendMessage(msg, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
-                    TSPlayer.Server.SendMessage(msg, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
-                    TShock.Log.Info("Broadcast: {0}", msg);
-                    args.Handled = true;
-                }
+                //    //Send the original sender their nicely formatted message, and do all the loggy things
+                //    tsplr.SendMessage(msg, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
+                //    TSPlayer.Server.SendMessage(msg, tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
+                //    TShock.Log.Info("Broadcast: {0}", msg);
+                //    args.Handled = true;
+                //}
             }
         }
         internal static string SuccessTag()
@@ -226,7 +231,7 @@ namespace Hydra.ChatTranslator
 
             foreach (var plr in TShockB.Players.Where(p => p != null && p.Active))
             {
-                PlayerLangOn[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)] = true;
+                PlayerLangOn[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage)] = true;
                 if (PlayerLangOn[0] && PlayerLangOn[1] && PlayerLangOn[2])
                     break;
                 switch (TSPlayerB.PlayerLanguage[plr.Index])
@@ -277,7 +282,7 @@ namespace Hydra.ChatTranslator
                         }
                     }
                     if (PConfig.ConsoleChatTranslate)
-                        Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
+                        Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
                 }
                 else
                     return;
@@ -288,24 +293,19 @@ namespace Hydra.ChatTranslator
                     if (PlayerLangOn[i])
                         TrMessage[i] = $"{OriginalMessage}{ErrorTag()}";
                 if (PConfig.ConsoleChatTranslate)
-                    Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkRed);
+                    Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkRed);
                 Logger.doLog($"[Hydra.ChatTranslator] {ex.Message}", Hydra.Config.DebugLevel.Error);
             }
 
-            Parallel.ForEach(TShock.Players.Where(p => p != null && p != tsplr && p.Active), fchplr =>
+            Parallel.ForEach(TShock.Players.Where(p => p != null && p != tsplr /*&& p.Active*/), fchplr =>
             {
                 if (DisableTr[fchplr.Index])
                     TSPlayerB.SendMessage(fchplr.Index, OriginalMessage, r, g, b);
                 else if (TSPlayerB.PlayerLanguage[tsplr.Index] == TSPlayerB.PlayerLanguage[fchplr.Index])
-                    TSPlayerB.SendMessage(fchplr.Index, TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]], r, g, b);
+                    TSPlayerB.SendMessage(fchplr.Index, $"{OriginalMessage}{(TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]].Contains("[c/ff0000:(X)])") ? "[c/ff0000:(X)])" : "")}" /*TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]]*/, r, g, b);
                 else if (TSPlayerB.PlayerLanguage[tsplr.Index] != TSPlayerB.PlayerLanguage[fchplr.Index])
                     TSPlayerB.SendMessage(fchplr.Index, TrMessage[(int)TSPlayerB.PlayerLanguage[fchplr.Index]], r, g, b);
             });
-
-
-            //if (Config.ConsoleChatTranslate)
-            //    //Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)]}", ConsoleColor.Green);
-            //    Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkGreen);
 
             PlayerHooks.OnPlayerChat(tsplr, args.Text, ref text);
         }
@@ -315,7 +315,7 @@ namespace Hydra.ChatTranslator
             {
                 ServerApi.Hooks.ServerChat.Deregister(this, OnServerChat);
                 GeneralHooks.ReloadEvent -= Config.OnReloadEvent;
-                TShockAPI.Commands.ChatCommands.Remove(new Command(TranslatorToggle));
+                TShockAPI.Commands.ChatCommands.Remove(new Command(TranslatorToggle, "translator"));
             }
             base.Dispose(disposing);
         }
