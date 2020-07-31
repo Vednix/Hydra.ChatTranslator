@@ -17,7 +17,7 @@ namespace Hydra.ChatTranslator
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
     {
-        public override Version Version => new Version(1, 0, 1, 4);
+        public override Version Version => new Version(1, 0, 1, 5);
 
         public override string Name
         {
@@ -35,8 +35,10 @@ namespace Hydra.ChatTranslator
         }
         internal static bool Wait = false;
         internal static bool[] DisableTr = new bool[Main.maxPlayers];
+        public static string _name { get; set; }
         public override void Initialize()
         {
+            _name = Name;
             ServerApi.Hooks.ServerChat.Register(this, OnServerChat);
             ServerApi.Hooks.GamePostInitialize.Register(this, Config.OnPluginInitialize);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
@@ -113,14 +115,14 @@ namespace Hydra.ChatTranslator
                                                                 PortugueseMessage: "O comando não pôde ser analisado.",
                                                                 SpanishMessage: "El comando no se pudo analizar.");
 
-                        Logger.doLogLang(DefaultMessage: $"Unable to parse command '{text}' from player '{tsplr.Name}'.", Hydra.Config.DebugLevel.Error, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage),
+                        Logger.doLogLang(DefaultMessage: $"Unable to parse command '{text}' from player '{tsplr.Name}'.", Hydra.Config.DebugLevel.Error, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage), _name,
                                          PortugueseMessage: $"Não foi possível parsear o comando '{text}' executado pelo jogador '{tsplr.Name}'.",
                                          SpanishMessage: $"El comando no se pudo analizar '{text}' realizado por el jugador '{tsplr.Name}'.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.doLogLang(DefaultMessage: $"An exception occurred executing a command.", Hydra.Config.DebugLevel.Critical, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage),
+                    Logger.doLogLang(DefaultMessage: $"An exception occurred executing a command.", Hydra.Config.DebugLevel.Critical, (TSPlayerB.Language)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage), _name,
                                      PortugueseMessage: $"Ocorreu uma exceção ao executar um comando.",
                                      SpanishMessage: $"Se produjo una excepción al ejecutar un comando.");
 
@@ -131,7 +133,7 @@ namespace Hydra.ChatTranslator
                 if (TShock.Config.EnableChatAboveHeads)
                 {
                     TShock.Config.EnableChatAboveHeads = false;
-                    Logger.doLog("ChatAboveHeads not yet implemented in Hydra, using default", Hydra.Config.DebugLevel.Critical);
+                    Logger.doLog($"ChatAboveHeads not yet implemented in {_name}, using default", Hydra.Config.DebugLevel.Critical, _name);
                 }
                 if (!tsplr.HasPermission(TShockAPI.Permissions.canchat))
                 {
@@ -294,7 +296,7 @@ namespace Hydra.ChatTranslator
                         TrMessage[i] = $"{OriginalMessage}{ErrorTag()}";
                 if (PConfig.ConsoleChatTranslate)
                     Logger.WriteLine($"[{Logger.DateTimeNow}] [CHAT] {System.Text.RegularExpressions.Regex.Replace(TrMessage[(int)Enum.Parse(typeof(TSPlayerB.Language), Base.Config.DefaultHydraLanguage)], @"\[c\/[a-f0-9]{6}:([^\]]+)]", @"$1")}", ConsoleColor.DarkRed);
-                Logger.doLog($"[Hydra.ChatTranslator] {ex.Message}", Hydra.Config.DebugLevel.Error);
+                Logger.doLog($"[Hydra.ChatTranslator] {ex.Message}", Hydra.Config.DebugLevel.Error, _name);
             }
 
             Parallel.ForEach(TShock.Players.Where(p => p != null && p != tsplr /*&& p.Active*/), fchplr =>
